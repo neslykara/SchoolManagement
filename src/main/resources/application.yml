@@ -1,0 +1,65 @@
+#############################################################
+# Port
+server:
+  port: 9092
+  error:
+    include-binding-errors: always
+    include-message: always
+    include-stacktrace: never
+
+###########################################################
+# Database Credentials
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/school_management_instructor_db
+    username: techpro
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL81Dialect
+        format_sql: false
+        bytecode:
+          use_reflection_optimizer: false
+          provider: true
+    show-sql: false
+    open-in-view: true
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+
+###########################################################
+# Keys
+backendapi:
+  app:
+    jwtSecret: sdfsdfsdfs
+    jwtExpirationMs: 8640000
+
+###########################################################
+# Values
+midterm:
+  exam:
+    impact:
+      percentage: 0.40
+
+final:
+  exam:
+    impact:
+      percentage: 0.60
+
+###########################################################
+# Logging
+logging:
+  file:
+    name: log/studentmanagementapp.log
+  pattern:
+    file: "%d %-5level [%thread] %logger:%msg%n"
+  level:
+    org:
+      springframework:
+        web: WARN
+      hibernate: INFO
+    com:
+      project: INFO
