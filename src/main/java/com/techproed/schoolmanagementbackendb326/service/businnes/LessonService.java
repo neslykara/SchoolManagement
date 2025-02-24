@@ -110,10 +110,10 @@ public class LessonService {
     return lessonMapper.mapLessonToLessonResponse(savedLesson);
   }
 
-  public Set<Lesson> getAllByIdSet(Set<Long> idSet) {
+  public List<Lesson> getAllByIdSet(List<Long> idSet) {
     return idSet.stream()
         .map(this::isLessonExistById)
-        .collect(Collectors.toSet());
+        .collect(Collectors.toList());
   }
 
   public List<LessonResponse> getAllLessonList() {

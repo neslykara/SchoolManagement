@@ -4,9 +4,13 @@ import com.techproed.schoolmanagementbackendb326.entity.concretes.user.User;
 import com.techproed.schoolmanagementbackendb326.entity.enums.RoleType;
 import com.techproed.schoolmanagementbackendb326.exception.ResourceNotFoundException;
 import com.techproed.schoolmanagementbackendb326.payload.messages.ErrorMessages;
+import com.techproed.schoolmanagementbackendb326.payload.request.abstracts.BaseUserRequest;
 import com.techproed.schoolmanagementbackendb326.payload.request.user.UserRequest;
+import com.techproed.schoolmanagementbackendb326.payload.response.user.StudentResponse;
 import com.techproed.schoolmanagementbackendb326.payload.response.user.UserResponse;
 import com.techproed.schoolmanagementbackendb326.service.user.UserRoleService;
+
+import java.util.ArrayList;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +30,7 @@ public class UserMapper {
    * @param userRole role of user to be created or updated
    * @return User entity
    */
-  public User mapUserRequestToUser(UserRequest userRequest, String userRole) {
+  public User mapUserRequestToUser(BaseUserRequest userRequest, String userRole) {
     User user = User.builder()
         .username(userRequest.getUsername())
         .name(userRequest.getName())
@@ -81,6 +85,26 @@ public class UserMapper {
         .ssn(user.getSsn())
         .email(user.getEmail())
         .userRole(user.getUserRole().getRoleType().name())
+        .build();
+  }
+
+  public StudentResponse mapUserToStudentResponse(User student){
+return StudentResponse.builder()
+        .id(student.getId())
+        .username(student.getUsername())
+        .name(student.getName())
+        .surname(student.getSurname())
+        .birthDay(student.getBirthday())
+        .ssn(student.getSsn())
+        .birthPlace(student.getBirthplace())
+        .phoneNumber(student.getPhoneNumber())
+        .gender(student.getGender())
+        .email(student.getEmail())
+        .studentNumber(student.getStudentNumber())
+        .motherName(student.getMotherName())
+        .fatherName(student.getFatherName())
+        .lessonProgramList(student.getLessonProgramList())
+        .isActive(student.isActive())
         .build();
   }
 

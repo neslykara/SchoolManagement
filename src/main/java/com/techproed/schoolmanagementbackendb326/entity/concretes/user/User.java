@@ -11,20 +11,8 @@ import com.techproed.schoolmanagementbackendb326.entity.enums.Gender;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,8 +26,16 @@ import lombok.NoArgsConstructor;
 @Table(name="t_user")
 public class User {
 
+ // @Id
+ // @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_seq")
+  @SequenceGenerator(
+          name = "product_seq",
+          sequenceName = "product_sequence",
+          allocationSize = 1,
+          initialValue = 2000  // Başlangıç değeri 1000
+  )
   private Long id;
 
   @Column(unique=true)
@@ -90,7 +86,7 @@ public class User {
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "lesson_program_id")
   )
-  private Set<LessonProgram>lessonProgramList;
+  private List<LessonProgram>lessonProgramList;
 
 
   @JsonIgnore

@@ -77,8 +77,8 @@ public class LessonController {
 
   @PreAuthorize("hasAnyAuthority('Admin','Dean','ViceDean')")
   @GetMapping("/getAllByIdSet")
-  public Set<Lesson>getAllByIdSet(@RequestParam(name = "lessonId") Set<Long> idSet){
-    return lessonService.getAllByIdSet(idSet);
+  public List<Lesson>getAllByIdSet(@RequestParam(name = "lessonId") List<Long> idList){
+    return lessonService.getAllByIdSet(idList);
   }
 
 

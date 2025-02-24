@@ -1,4 +1,4 @@
-package com.techproed.schoolmanagementbackendb326.controller.businnes;
+package com.techproed.schoolmanagementbackendb326.controller.user;
 
 import com.techproed.schoolmanagementbackendb326.payload.request.user.StudentRequest;
 import com.techproed.schoolmanagementbackendb326.payload.response.business.ResponseMessage;
@@ -7,8 +7,11 @@ import com.techproed.schoolmanagementbackendb326.service.user.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/student")
@@ -18,7 +21,7 @@ public class StudentController {
 
     @PreAuthorize("hasAnyAuthority('Admin')")
     @PostMapping("/save")
-    public ResponseMessage<StudentResponse>save(StudentRequest studentRequest){
+    public ResponseMessage<StudentResponse>save(@RequestBody @Valid StudentRequest studentRequest){
         return studentService.save(studentRequest);
     }
 
