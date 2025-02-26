@@ -42,6 +42,14 @@ public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
 
+ // @Id
+ // @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_seq")
+ // @SequenceGenerator(
+ //         name = "product_seq",
+ //         sequenceName = "product_sequence",
+ //         allocationSize = 1,
+ //         initialValue = 1000  // Başlangıç değeri 1000
+ // )
   private Long id;
 
   @Column(unique=true)

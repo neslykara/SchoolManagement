@@ -1,10 +1,13 @@
 package com.techproed.schoolmanagementbackendb326.service.user;
 
+import com.techproed.schoolmanagementbackendb326.entity.concretes.business.LessonProgram;
 import com.techproed.schoolmanagementbackendb326.entity.concretes.user.User;
 import com.techproed.schoolmanagementbackendb326.entity.enums.RoleType;
 import com.techproed.schoolmanagementbackendb326.payload.mappers.UserMapper;
 import com.techproed.schoolmanagementbackendb326.payload.messages.SuccessMessages;
+import com.techproed.schoolmanagementbackendb326.payload.request.business.AddLessonProgramForStudent;
 import com.techproed.schoolmanagementbackendb326.payload.request.user.StudentRequest;
+import com.techproed.schoolmanagementbackendb326.payload.request.user.StudentUpdateRequest;
 import com.techproed.schoolmanagementbackendb326.payload.response.business.ResponseMessage;
 import com.techproed.schoolmanagementbackendb326.payload.response.user.StudentResponse;
 import com.techproed.schoolmanagementbackendb326.repository.user.UserRepository;
@@ -12,9 +15,14 @@ import com.techproed.schoolmanagementbackendb326.service.businnes.LessonProgramS
 import com.techproed.schoolmanagementbackendb326.service.helper.MethodHelper;
 import com.techproed.schoolmanagementbackendb326.service.validator.TimeValidator;
 import com.techproed.schoolmanagementbackendb326.service.validator.UniquePropertyValidator;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,10 +42,10 @@ public class StudentService {
     methodHelper.checkIsAdvisor(advisorTeacher);
     //validate unique properties
     uniquePropertyValidator.checkDuplication(
-        studentRequest.getUsername(),
-        studentRequest.getSsn(),
-        studentRequest.getPhoneNumber(),
-        studentRequest.getEmail());
+            studentRequest.getUsername(),
+            studentRequest.getSsn(),
+            studentRequest.getPhoneNumber(),
+            studentRequest.getEmail());
     //map DTO to entity
     User student = userMapper.mapUserRequestToUser(studentRequest, RoleType.STUDENT.getName());
     //set missing props
@@ -48,11 +56,11 @@ public class StudentService {
     student.setStudentNumber(getLastStudentNumber());
     User savedStudent = userRepository.save(student);
     return ResponseMessage.<StudentResponse>
-        builder()
-        .returnBody(userMapper.mapUserToStudentResponse(savedStudent))
-        .message(SuccessMessages.STUDENT_SAVE)
-        .httpStatus(HttpStatus.CREATED)
-        .build();
+                    builder()
+            .returnBody(userMapper.mapUserToStudentResponse(savedStudent))
+            .message(SuccessMessages.STUDENT_SAVE)
+            .httpStatus(HttpStatus.CREATED)
+            .build();
   }
 
   private int getLastStudentNumber() {
@@ -61,4 +69,67 @@ public class StudentService {
     }
     return userRepository.getMaxStudentNumber()+1;
   }
+
+  public String updateStudent(HttpServletRequest httpServletRequest,
+                              StudentUpdateRequest studentUpdateRequest) {
+    String username = (String) httpServletRequest.getAttribute("username");
+    User student = methodHelper.loadByUsername(username);
+    uniquePropertyValidator.checkUniqueProperty(student, studentUpdateRequest);
+    User userToUpdate = userMapper.mapStudentUpdateRequestToUser(studentUpdateRequest);
+    userToUpdate.setId(student.getId());
+    userToUpdate.setPassword(student.getPassword());
+    userToUpdate.setBuildIn(student.getBuildIn());
+    userToUpdate.setAdvisorTeacherId(student.getAdvisorTeacherId());
+    userRepository.save(userToUpdate);
+    return SuccessMessages.STUDENT_UPDATE;
+  }
+
+  public ResponseMessage<StudentResponse> updateStudentByManager(Long studentId,
+                                                                 StudentRequest studentRequest) {
+    //validate user existence
+    User student = methodHelper.isUserExist(studentId);
+    methodHelper.checkUserRole(student,RoleType.STUDENT);
+    uniquePropertyValidator.checkUniqueProperty(student, studentRequest);
+    User studentToUpdate = userMapper.mapUserRequestToUser(studentRequest, RoleType.STUDENT.getName());
+    //add missing props.
+    studentToUpdate.setId(student.getId());
+    studentToUpdate.setPassword(student.getPassword());
+    studentToUpdate.setBuildIn(student.getBuildIn());
+    studentToUpdate.setAdvisorTeacherId(student.getAdvisorTeacherId());
+    studentToUpdate.setStudentNumber(student.getStudentNumber());
+    return ResponseMessage.<StudentResponse>builder()
+            .message(SuccessMessages.STUDENT_UPDATE)
+            .returnBody(userMapper.mapUserToStudentResponse(userRepository.save(studentToUpdate)))
+            .httpStatus(HttpStatus.OK)
+            .build();
+  }
+
+
+  public ResponseMessage changeStatus(Long id, boolean status) {
+    User student=methodHelper.isUserExist(id);
+    methodHelper.checkUserRole(student,RoleType.STUDENT);
+    student.setActive(status);
+    User updatedStudent = userRepository.save(student);
+    return ResponseMessage.builder()
+            .message(SuccessMessages.STUDENT_UPDATE)
+            .returnBody(updatedStudent)
+            .httpStatus(HttpStatus.OK)
+            .build();
+  }
+
+
+  public ResponseMessage<StudentResponse> addLessonProgram(HttpServletRequest httpServletRequest,
+                                                           AddLessonProgramForStudent addLessonProgramForStudent) {
+    String username=(String) httpServletRequest.getAttribute("username");
+    User loggedInUser=methodHelper.loadByUsername(username);
+    //new
+    List<LessonProgram>lessonProgramFromDto=
+            lessonProgramService.getLessonProgramById(addLessonProgramForStudent.getLessonProgramId());
+    //existing
+    List<LessonProgram>studentLessonProgram=loggedInUser.getLessonProgramList();
+    studentLessonProgram.addAll(lessonProgramFromDto);
+    return null;
+  }
+
+
 }

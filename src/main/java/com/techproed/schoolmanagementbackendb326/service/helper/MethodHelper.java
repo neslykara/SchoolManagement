@@ -2,6 +2,7 @@ package com.techproed.schoolmanagementbackendb326.service.helper;
 
 import com.techproed.schoolmanagementbackendb326.entity.ContactMessage;
 import com.techproed.schoolmanagementbackendb326.entity.concretes.user.User;
+import com.techproed.schoolmanagementbackendb326.entity.enums.RoleType;
 import com.techproed.schoolmanagementbackendb326.exception.BadRequestException;
 import com.techproed.schoolmanagementbackendb326.exception.ResourceNotFoundException;
 import com.techproed.schoolmanagementbackendb326.payload.messages.ErrorMessages;
@@ -32,6 +33,12 @@ public class MethodHelper {
     }
   }
 
+  public void checkUserRole(User user, RoleType roleType)
+  {
+    if (!user.getUserRole().getRoleType().equals(roleType)){
+      throw  new BadRequestException(ErrorMessages.NOT_HAVE_EXPECTED_ROLE_USER);
+    }
+  }
   public User loadByUsername(String username) {
     User user = userRepository.findByUsername(username);
     if(user == null){

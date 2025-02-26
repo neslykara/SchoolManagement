@@ -32,39 +32,39 @@ public class LessonProgramService {
   private final LessonProgramMapper lessonProgramMapper;
 
   public ResponseMessage<LessonProgramResponse> saveLessonProgram(
-      @Valid LessonProgramRequest lessonProgramRequest) {
+          @Valid LessonProgramRequest lessonProgramRequest) {
     //get lessons from DB
     List<Lesson> lessons = lessonService.getAllByIdSet(lessonProgramRequest.getLessonIdList());
     //get education term from DB
     EducationTerm educationTerm = educationTermService.isEducationTermExist(lessonProgramRequest.getEducationTermId());
     //validate start + end time
     timeValidator.checkStartIsBeforeStop(
-        lessonProgramRequest.getStartTime(),lessonProgramRequest.getStopTime());
+            lessonProgramRequest.getStartTime(),lessonProgramRequest.getStopTime());
     //mapping
     LessonProgram lessonProgramToSave = lessonProgramMapper.mapLessonProgramRequestToLessonProgram(
-        lessonProgramRequest,lessons,educationTerm);
+            lessonProgramRequest,lessons,educationTerm);
     LessonProgram savedLessonProgram = lessonProgramRepository.save(lessonProgramToSave);
     return ResponseMessage.<LessonProgramResponse>
-        builder()
-        .returnBody(lessonProgramMapper.mapLessonProgramToLessonProgramResponse(savedLessonProgram))
-        .httpStatus(HttpStatus.CREATED)
-        .message(SuccessMessages.LESSON_PROGRAM_SAVE)
-        .build();
+                    builder()
+            .returnBody(lessonProgramMapper.mapLessonProgramToLessonProgramResponse(savedLessonProgram))
+            .httpStatus(HttpStatus.CREATED)
+            .message(SuccessMessages.LESSON_PROGRAM_SAVE)
+            .build();
   }
 
 
   public List<LessonProgramResponse> getAllUnassigned() {
     return lessonProgramRepository.findByUsers_IdNull()
-        .stream()
-        .map(lessonProgramMapper::mapLessonProgramToLessonProgramResponse)
-        .collect(Collectors.toList());
+            .stream()
+            .map(lessonProgramMapper::mapLessonProgramToLessonProgramResponse)
+            .collect(Collectors.toList());
   }
 
   public List<LessonProgramResponse> getAllAssigned() {
     return lessonProgramRepository.findByUsers_IdNotNull()
-        .stream()
-        .map(lessonProgramMapper::mapLessonProgramToLessonProgramResponse)
-        .collect(Collectors.toList());
+            .stream()
+            .map(lessonProgramMapper::mapLessonProgramToLessonProgramResponse)
+            .collect(Collectors.toList());
   }
 
 
@@ -91,6 +91,10 @@ public class LessonProgramService {
       throw new BadRequestException(ErrorMessages.NOT_FOUND_LESSON_PROGRAM_MESSAGE_WITHOUT_ID_INFO);
     }
     return lessonProgramList;
+  }
+  public List<LessonProgramResponse> getAllLessonPrograms() {
+    List<LessonProgram> allLessonPrograms = lessonProgramRepository.findAll();
+    return allLessonPrograms.stream().map(lessonProgramMapper::mapLessonProgramToLessonProgramResponse).collect(Collectors.toList());
   }
 
 
